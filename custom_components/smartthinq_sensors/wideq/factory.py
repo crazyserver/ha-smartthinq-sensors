@@ -20,6 +20,7 @@ from .devices.fan import FanDevice
 from .devices.microwave import MicroWaveDevice
 from .devices.range import RangeDevice
 from .devices.refrigerator import RefrigeratorDevice
+from .devices.robotking import RobotKingDevice
 from .devices.styler import StylerDevice
 from .devices.washerDryer import WMDevice, get_sub_devices
 from .devices.waterheater import WaterHeaterDevice
@@ -55,6 +56,8 @@ def get_lge_device(
         return [RangeDevice(client, device_info)]
     if device_type == DeviceType.REFRIGERATOR:
         return [RefrigeratorDevice(client, device_info)]
+    if device_type == DeviceType.ROBOT_KING:
+        return [RobotKingDevice(client, device_info)]
     if device_type == DeviceType.STYLER:
         return [StylerDevice(client, device_info)]
     if device_type == DeviceType.WATER_HEATER:
