@@ -16,10 +16,12 @@ Supported devices are:
 - Dishwasher
 - Dryer
 - Fan
+- Hood
 - Microwave
 - Range
 - Refrigerator
 - Styler
+- Tower Washer-Dryer
 - Washer
 - Water Heater
 
@@ -49,19 +51,19 @@ Prerequisite: SSH into your server.
 
 1. Clone the git master branch.
 `git clone https://github.com/ollo69/ha-smartthinq-sensors.git`
-2. If missing, create a `custom_components` directory where your configuration.yaml file resides. This is usually in the config directory of homeassistant.
+2. If missing, create a `custom_components` directory where your `configuration.yaml` file resides. This is usually in the config directory of homeassistant.
 `mkdir ~/.homeassistant/custom_components`
-3. Copy the smartthinq_sensors directory within the `custom_components` directory of your homeassistant installation from step 2.
+3. Copy the `smartthinq_sensors` directory within the `custom_components` directory of your homeassistant installation from step 2.
 `cp -R ha-smartthinq-sensors/custom_components/smartthinq_sensors/ ~/.homeassistant/custom_components`
 4. (Optional) Delete the git repo.
-`rm -R ha-smartthinq-sensors/`
+`rm -Rf ha-smartthinq-sensors/`
 
     After a correct installation, your configuration directory should look like the following.
 
     ```shell
         └── ...
         └── configuration.yaml
-        └── secrects.yaml
+        └── secrets.yaml
         └── custom_components
             └── smartthinq_sensors
                 └── __init__.py
@@ -216,7 +218,11 @@ text_width: 4em # adjusts the text width
 Code hidden, click to expand
   </summary>
 
+_Ensure that advance mode is enabled for your account else you won't see the resources page. **Your User** > **Advanced Mode**. Toggle to true._
+
 Place this file in `/config/www/laundry.js`, and add a custom resource in **HA UI** > **Sidebar** > **Config** > **Dashboards** > **Resources** > **Plus** > **Add `/local/laundry.js`**.
+
+In newer HA versions, you can find the custom resource page in **HA UI** > **Sidebar** > **Settings** > **Dashboards** > **[3-dots, top right]** > **Resources** **+ Add Resources** > **Add `/local/laundry.js`**
 
 ```js
 class LaundryCard extends HTMLElement {

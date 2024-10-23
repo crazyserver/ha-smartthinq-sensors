@@ -6,25 +6,25 @@ on:
       - master
 
   pull_request:
-    branches: "*"
+    branches: ["*"]
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: 3.12
 
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
       - name: flake8
-        run: flake8 .
+        run: flake8 --extend-ignore=E704 .
       - name: isort
         run: isort --diff --check .
       - name: Black
-        run: black --line-length 88 --check .
+        run: black --line-length 88 --diff --check .

@@ -1,4 +1,5 @@
 """------------------for Refrigerator"""
+
 from __future__ import annotations
 
 import base64
@@ -16,6 +17,7 @@ FEATURE_DESCR = {
     "@RE_TERM_EXPRESS_FRIDGE_W": "express_cool",
     "@RE_TERM_ICE_PLUS_W": "ice_plus",
 }
+FEATURE_KEY_IGNORE = "##IGNORE##"
 
 REFRTEMPUNIT = {
     "Ｆ": TemperatureUnit.FAHRENHEIT,
@@ -86,6 +88,8 @@ class RefrigeratorDevice(Device):
         return None
 
     def _get_feature_title(self, feature_name, item_key):
+        if item_key and item_key == FEATURE_KEY_IGNORE:
+            return feature_name
         item_info = self._get_feature_info(item_key)
         if not item_info:
             return None
@@ -106,7 +110,7 @@ class RefrigeratorDevice(Device):
         str_data = cmd.get(data_key)
 
         if str_data:
-            status_data = self._status.data
+            status_data = self._status.as_dict
             for dt_key, dt_value in status_data.items():
                 if dt_key == key:
                     dt_value = value
@@ -152,7 +156,6 @@ class RefrigeratorDevice(Device):
                 self._temp_unit = unit
                 self._fridge_temps = None
                 self._freezer_temps = None
-        return
 
     def _get_temp_unit(self, unit=None):
         """Get the configured temperature unit."""
@@ -326,8 +329,7 @@ class RefrigeratorDevice(Device):
         if self._status.temp_fridge is None:
             return
 
-        temp_key = self._get_temp_key(self._fridge_temps, temp)
-        if not temp_key:
+        if (temp_key := self._get_temp_key(self._fridge_temps, temp)) is None:
             raise ValueError(f"Target fridge temperature not valid: {temp}")
         if not self.model_info.is_info_v2:
             temp_key = str(temp_key)
@@ -344,8 +346,7 @@ class RefrigeratorDevice(Device):
         if self._status.temp_freezer is None:
             return
 
-        temp_key = self._get_temp_key(self._freezer_temps, temp)
-        if not temp_key:
+        if (temp_key := self._get_temp_key(self._freezer_temps, temp)) is None:
             raise ValueError(f"Target freezer temperature not valid: {temp}")
         if not self.model_info.is_info_v2:
             temp_key = str(temp_key)
@@ -586,6 +587,24 @@ class RefrigeratorStatus(DeviceStatus):
         )
 
     @property
+    def fresh_air_filter_remain_perc(self):
+        """Return fresh air filter remain percentage."""
+        if not self.is_info_v2:
+            return None
+
+        key = "freshAirFilterRemainP"
+        status = self.to_int_or_none(self.lookup_range(key))
+        if status is None or status > 100:
+            return None
+
+        return self._update_feature(
+            RefrigeratorFeatures.FRESHAIRFILTER_REMAIN_PERC,
+            status,
+            False,
+            FEATURE_KEY_IGNORE,
+        )
+
+    @property
     def water_filter_used_month(self):
         """Return water filter used months."""
         if self.is_info_v2:
@@ -605,6 +624,24 @@ class RefrigeratorStatus(DeviceStatus):
         value = "N/A" if not counter else counter
         return self._update_feature(
             RefrigeratorFeatures.WATERFILTERUSED_MONTH, value, False, key
+        )
+
+    @property
+    def water_filter_remain_perc(self):
+        """Return water filter remain percentage."""
+        if not self.is_info_v2:
+            return None
+
+        key = "waterFilter1RemainP"
+        status = self.to_int_or_none(self.lookup_range(key))
+        if status is None or status > 100:
+            return None
+
+        return self._update_feature(
+            RefrigeratorFeatures.WATERFILTER_REMAIN_PERC,
+            status,
+            False,
+            FEATURE_KEY_IGNORE,
         )
 
     @property
@@ -628,5 +665,7 @@ class RefrigeratorStatus(DeviceStatus):
             self.express_mode_status,
             self.smart_saving_mode,
             self.fresh_air_filter_status,
+            self.fresh_air_filter_remain_perc,
             self.water_filter_used_month,
+            self.water_filter_remain_perc,
         ]
